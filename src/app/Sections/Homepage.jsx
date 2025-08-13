@@ -65,7 +65,7 @@ function Homepage() {
                         </h2>
                     </div>
 
-\                    <div className={`mt-8 transition-all duration-1000 delay-700 ${showText ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
+                <div className={`mt-8 transition-all duration-1000 delay-700 ${showText ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
                         <div className="w-24 h-1 bg-pink-600 mx-auto animate-pulse"></div>
                     </div>
 
