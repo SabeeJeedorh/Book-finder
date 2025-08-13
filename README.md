@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+📚 Book Finder App – LitSeek
+LitSeek is a web application that lets users search for books using the Google Books API. You can explore books by title, author, or keyword and view detailed information including the cover, description, author details, and publication year. Designed for book lovers, it makes discovering your next great read simple and enjoyable.
 
-## Getting Started
+🚀 Features
+Search by Title, Author, or Keyword – powered by Google Books API.
 
-First, run the development server:
+Book Details Page – cover image, description, author info, and published date.
 
-```bash
+Pagination – browse search results page-by-page for easier navigation.
+
+Responsive Design – works smoothly on desktop, tablet, and mobile.
+
+Smooth Animations – enhanced with Framer Motion for a polished feel.
+
+Error Handling – friendly messages when no results are found.
+
+🛠️ Tech Stack
+Frontend: Next.js (React framework)
+
+Styling: Tailwind CSS
+
+Animations: Framer Motion
+
+API: Google Books API
+
+Deployment: Netlify
+
+📦 Installation & Setup
+Clone the repo:
+
+bash
+Copy
+Edit
+git clone https://github.com/SabeeJeedorh/Book-finder.git
+cd Book-finder
+Install dependencies:
+
+bash
+Copy
+Edit
+npm install
+Run the development server:
+
+bash
+Copy
+Edit
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open http://localhost:3000 to view it in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🌍 Live Demo
+Visit LitSeek
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+📌 How It Works
+User enters a search term (title, author, or keyword).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app sends a request to Google Books API.
 
-## Learn More
+Results are displayed with book cover, title, author, and other details.
 
-To learn more about Next.js, take a look at the following resources:
+Clicking on a book shows more detailed information.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+📷 Screenshots
+(Add images of your app interface here)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+🧑‍💻 Author
+Sabi'a Sani Jido
 
-## Deploy on Vercel
+GitHub: SabeeJeedorh
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
