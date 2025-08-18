@@ -260,14 +260,14 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex flex-col md:flex-row justify-between items-center h-auto md:h-16 py-2 md:py-0">
             {/* Logo */}
             {/* <div className="flex items-center">
               <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">Litseek</h1>
             </div> */}
 
 
-            <div className="flex items-center space-x-2 cursor-pointer">
+            <div className="flex items-center space-x-2 cursor-pointer mb-2 md:mb-0">
               {/* Animated Icon & Logo - Clickable to go to homepage */}
               <div
                 className="flex items-center space-x-2 cursor-pointer"
@@ -297,7 +297,7 @@ export default function Home() {
             </div>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-lg mx-8">
+            <div className="w-full md:flex-1 max-w-lg mx-0 md:mx-8 mb-2 md:mb-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer" onClick={handleSearch} />
                 <input
@@ -312,7 +312,7 @@ export default function Home() {
             </div>
 
             {/* Header Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4">
               {/* Notification Bell */}
               <div className="relative cursor-pointer" onClick={() => {
                 setShowNotifications(!showNotifications);
@@ -373,12 +373,12 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Search Results */}
         {searchResults.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Search Results for "{query}"</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Search Results for "{query}"</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {searchResults.map((book) => (
                 <div key={book.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                   {book.volumeInfo.imageLinks?.thumbnail && (
@@ -413,15 +413,15 @@ export default function Home() {
         )}
 
         {/* Featured Books Carousel */}
-        <div className="relative mb-8 overflow-hidden rounded-2xl">
+        <div className="relative mb-6 sm:mb-8 overflow-hidden rounded-2xl">
           <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
             {featuredBooks.map((book, index) => (
               <div
                 key={book.id}
-                className={`w-full flex-shrink-0 ${book.color} p-8 text-white relative`}
+                className={`w-full flex-shrink-0 ${book.color} p-4 sm:p-8 text-white relative`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
+                <div className="flex flex-col sm:flex-row items-center justify-between">
+                  <div className="flex-1 mb-4 sm:mb-0">
                     <h2 className="text-3xl font-bold mb-2">{book.title}</h2>
                     <p className="text-lg opacity-90 mb-2">{book.author}</p>
                     <div className="flex items-center mb-4">
@@ -437,7 +437,7 @@ export default function Home() {
                     <img
                       src={book.image}
                       alt={book.title}
-                      className="w-48 h-64 object-cover rounded-lg shadow-2xl"
+                      className="w-32 h-44 sm:w-48 sm:h-64 object-cover rounded-lg shadow-2xl mx-auto sm:mx-0"
                     />
                   </div>
                 </div>
@@ -472,11 +472,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
           {/* Left Sidebar */}
-          <div className="lg:col-span-1 space-y-8">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-8 mb-4 lg:mb-0">
             {/* Author of the Week */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Author of the week</h3>
               <div className="space-y-3">
                 {authorOfWeek.map((author, index) => (
@@ -493,7 +493,7 @@ export default function Home() {
             </div>
 
             {/* Books of the Year */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Books of the year</h3>
               <div className="space-y-4">
                 {booksOfYear.map((book, index) => (
@@ -519,18 +519,18 @@ export default function Home() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Popular by Genre */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-gray-800">Popular by Genre</h3>
               </div>
 
               {/* Genre Tabs */}
-              <div className="flex space-x-6 mb-6 border-b">
+              <div className="flex flex-wrap space-x-2 sm:space-x-6 mb-4 sm:mb-6 border-b">
                 {genres.map((genre) => (
                   <button
                     key={genre}
                     onClick={() => setActiveGenre(genre)}
-                    className={`pb-2 text-sm font-medium transition-colors ${activeGenre === genre
+                    className={`pb-2 text-xs sm:text-sm font-medium transition-colors ${activeGenre === genre
                         ? "text-blue-600 border-b-2 border-blue-600"
                         : "text-gray-600 hover:text-gray-900"
                       }`}
@@ -541,13 +541,13 @@ export default function Home() {
               </div>
 
               {/* Popular Books Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {popularBooks.map((book) => (
-                  <div key={book.id} className="flex space-x-4 hover:bg-gray-50 p-4 rounded-lg transition-colors">
+                  <div key={book.id} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 hover:bg-gray-50 p-2 sm:p-4 rounded-lg transition-colors">
                     <img
                       src={book.image}
                       alt={book.title}
-                      className="w-24 h-32 object-cover rounded-lg shadow-sm"
+                      className="w-20 h-28 sm:w-24 sm:h-32 object-cover rounded-lg shadow-sm mx-auto sm:mx-0"
                     />
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
