@@ -1,7 +1,7 @@
 "use client"
 import Link from 'next/link'
 import { useState, useEffect } from "react";
-import { Search, Clock, Star, TrendingUp, ChevronLeft, ChevronRight, Menu, User, Bell, MoreHorizontal } from "lucide-react";
+import { Search, Clock, Star, TrendingUp, ChevronLeft, ChevronRight, Menu, User, Bell, MoreHorizontal, X, History } from "lucide-react";
 import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
 
@@ -20,8 +20,83 @@ export default function Home() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [browsingHistory, setBrowsingHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   const handleLogout = () => {
-  router.push("/sections/Homepage");
+    router.push("/sections/Homepage");
+  };
+
+  // Load browsing history from memory on component mount
+  useEffect(() => {
+    const savedHistory = JSON.parse(localStorage.getItem('browsingHistory') || '[]');
+    setBrowsingHistory(savedHistory);
+  }, []);
+
+  // Save browsing history to memory whenever it changes
+  useEffect(() => {
+    localStorage.setItem('browsingHistory', JSON.stringify(browsingHistory));
+  }, [browsingHistory]);
+
+  // Add search to browsing history
+  const addToHistory = (searchTerm) => {
+    if (!searchTerm.trim()) return;
+
+    const historyItem = {
+      id: Date.now(),
+      query: searchTerm,
+      timestamp: new Date().toLocaleString(),
+      date: new Date().toISOString().split('T')[0] // for grouping by date
+    };
+
+    setBrowsingHistory(prev => {
+      // Remove duplicate if exists
+      const filtered = prev.filter(item => item.query.toLowerCase() !== searchTerm.toLowerCase());
+      // Add new item at the beginning and keep only last 20 items
+      return [historyItem, ...filtered].slice(0, 20);
+    });
+  };
+
+  // Clear search and results
+  const clearSearch = () => {
+    setQuery("");
+    setSearchResults([]);
+  };
+
+  // Clear browsing history
+  const clearHistory = () => {
+    setBrowsingHistory([]);
+    setShowHistory(false);
+  };
+
+  // Delete specific history item
+  const deleteHistoryItem = (id) => {
+    setBrowsingHistory(prev => prev.filter(item => item.id !== id));
+  };
+
+  // Group history by date
+  const groupedHistory = browsingHistory.reduce((groups, item) => {
+    const date = item.date;
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(item);
+    return groups;
+  }, {});
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    if (dateString === today) return "Today";
+    if (dateString === yesterday) return "Yesterday";
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   // Mock data for featured books carousel
@@ -218,6 +293,9 @@ export default function Home() {
     if (e) e.preventDefault();
     if (!query.trim()) return;
 
+    // Add to browsing history
+    addToHistory(query);
+
     setLoading(true);
     try {
       const response = await fetch(
@@ -231,6 +309,16 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle history item click
+  const handleHistoryClick = (historyQuery) => {
+    setQuery(historyQuery);
+    setShowHistory(false);
+    // Trigger search with the history item
+    setTimeout(() => {
+      handleSearch();
+    }, 100);
   };
 
   const nextSlide = () => {
@@ -262,19 +350,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center h-auto md:h-16 py-2 md:py-0">
             {/* Logo */}
-            {/* <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">Litseek</h1>
-            </div> */}
-
-
             <div className="flex items-center space-x-2 cursor-pointer mb-2 md:mb-0">
-              {/* Animated Icon & Logo - Clickable to go to homepage */}
-              <div
-                className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => {
-                  router.push("/sections/homepage");
-                }}
-              >
+              {/* Animated Icon & Logo - Link to homepage */}
+              <Link href="./" className="flex items-center space-x-2 cursor-pointer">
                 <motion.div
                   initial={{ rotate: -20, opacity: 0, scale: 0.8 }}
                   animate={{ rotate: 0, opacity: 1, scale: 1 }}
@@ -293,21 +371,97 @@ export default function Home() {
                   Lit
                   <span className="text-pink-500">seek</span>
                 </motion.h1>
-              </div>
+              </Link>
             </div>
 
-            {/* Search Bar */}
-            <div className="w-full md:flex-1 max-w-lg mx-0 md:mx-8 mb-2 md:mb-0">
+            {/* Search Bar with History */}
+            <div className="w-full md:flex-1 max-w-lg mx-0 md:mx-8 mb-2 md:mb-0 relative">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer" onClick={handleSearch} />
+                {/* History Button */}
+                <History
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer hover:text-gray-600"
+                  onClick={() => {
+                    setShowHistory(!showHistory);
+                    setShowNotifications(false);
+                    setShowProfile(false);
+                    setShowMenu(false);
+                  }}
+                />
+
+                {/* Search Input */}
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
                   placeholder="Search Book..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-20 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+
+                {/* Search and Cancel Icons */}
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                  {query && (
+                    <X
+                      className="text-gray-400 w-5 h-5 cursor-pointer hover:text-gray-600"
+                      onClick={clearSearch}
+                    />
+                  )}
+                  <Search
+                    className="text-gray-400 w-5 h-5 cursor-pointer hover:text-gray-600"
+                    onClick={handleSearch}
+                  />
+                </div>
+
+                {/* History Dropdown */}
+                {showHistory && browsingHistory.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto z-20">
+                    <div className="p-3 border-b flex justify-between items-center">
+                      <span className="font-semibold text-gray-700">Search History</span>
+                      <button
+                        onClick={clearHistory}
+                        className="text-red-500 text-sm hover:text-red-700"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+
+                    {Object.entries(groupedHistory).map(([date, items]) => (
+                      <div key={date} className="border-b last:border-b-0">
+                        <div className="px-3 py-2 bg-gray-50 text-sm font-medium text-gray-600">
+                          {formatDate(date)}
+                        </div>
+                        {items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex justify-between items-center group"
+                          >
+                            <div
+                              onClick={() => handleHistoryClick(item.query)}
+                              className="flex-1"
+                            >
+                              <div className="text-sm text-gray-800">{item.query}</div>
+                              <div className="text-xs text-gray-500">{new Date(item.timestamp).toLocaleTimeString()}</div>
+                            </div>
+                            <X
+                              className="w-4 h-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => deleteHistoryItem(item.id)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Empty History Message */}
+                {showHistory && browsingHistory.length === 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg p-4 z-20">
+                    <div className="text-center text-gray-500 text-sm">
+                      <History className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      No search history yet
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -318,6 +472,7 @@ export default function Home() {
                 setShowNotifications(!showNotifications);
                 setShowProfile(false);
                 setShowMenu(false);
+                setShowHistory(false);
               }}>
                 <Bell className="w-6 h-6 text-gray-600 hover:text-gray-900 transition-colors" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
@@ -339,6 +494,7 @@ export default function Home() {
                   setShowProfile(!showProfile);
                   setShowNotifications(false);
                   setShowMenu(false);
+                  setShowHistory(false);
                 }}>
                   <User className="w-5 h-5 text-white" />
                 </div>
@@ -346,9 +502,9 @@ export default function Home() {
                   <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg p-2 z-10">
                     <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</button>
                     <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</button>
-                      <Link className='text-red-500 text-sm text-left px-4 py-2' onClick={handleLogout}
-                            href="./"
-                        >Logout</Link>
+                    <Link className='text-red-500 text-sm text-left px-4 py-2' onClick={handleLogout}
+                      href="./"
+                    >Logout</Link>
                   </div>
                 )}
               </div>
@@ -359,6 +515,7 @@ export default function Home() {
                   setShowMenu(!showMenu);
                   setShowNotifications(false);
                   setShowProfile(false);
+                  setShowHistory(false);
                 }} />
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg p-2 z-10">
@@ -373,11 +530,20 @@ export default function Home() {
         </div>
       </header>
 
-  <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Search Results */}
         {searchResults.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Search Results for "{query}"</h2>
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Search Results for "{query}"</h2>
+              <button
+                onClick={clearSearch}
+                className="text-gray-500 hover:text-gray-700 text-sm flex items-center space-x-1"
+              >
+                <X className="w-4 h-4" />
+                <span>Clear</span>
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {searchResults.map((book) => (
                 <div key={book.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -472,7 +638,7 @@ export default function Home() {
           </div>
         </div>
 
-  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
           {/* Left Sidebar */}
           <div className="lg:col-span-1 space-y-4 sm:space-y-8 mb-4 lg:mb-0">
             {/* Author of the Week */}
@@ -531,8 +697,8 @@ export default function Home() {
                     key={genre}
                     onClick={() => setActiveGenre(genre)}
                     className={`pb-2 text-xs sm:text-sm font-medium transition-colors ${activeGenre === genre
-                        ? "text-blue-600 border-b-2 border-blue-600"
-                        : "text-gray-600 hover:text-gray-900"
+                      ? "text-blue-600 border-b-2 border-blue-600"
+                      : "text-gray-600 hover:text-gray-900"
                       }`}
                   >
                     {genre}
