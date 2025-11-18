@@ -1,10 +1,8 @@
 "use client"
 import Link from 'next/link'
 import { useState, useEffect } from "react";
-import { Search, Clock, Star, TrendingUp, ChevronLeft, ChevronRight, Menu, User, Bell, MoreHorizontal, X, History } from "lucide-react";
+import { Search, Clock, Star, TrendingUp, ChevronLeft, ChevronRight, Menu, User, Bell, MoreHorizontal, X, History, Heart, BookOpen, Calendar, User as UserIcon, Globe, Bookmark, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
-import { BookOpen } from "lucide-react";
-
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -22,23 +20,31 @@ export default function Home() {
   const [showMenu, setShowMenu] = useState(false);
   const [browsingHistory, setBrowsingHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [showBookDetails, setShowBookDetails] = useState(false);
+  const [bookDetailsLoading, setBookDetailsLoading] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [showRecentSearches, setShowRecentSearches] = useState(false);
 
   const handleLogout = () => {
     router.push("/sections/Homepage");
   };
 
-  // Load browsing history from memory on component mount
+  // Load browsing history and recent searches from localStorage on component mount
   useEffect(() => {
     const savedHistory = JSON.parse(localStorage.getItem('browsingHistory') || '[]');
+    const savedRecentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
     setBrowsingHistory(savedHistory);
+    setRecentSearches(savedRecentSearches);
   }, []);
 
-  // Save browsing history to memory whenever it changes
+  // Save browsing history and recent searches to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('browsingHistory', JSON.stringify(browsingHistory));
-  }, [browsingHistory]);
+    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+  }, [browsingHistory, recentSearches]);
 
-  // Add search to browsing history
+  // Add search to browsing history and recent searches
   const addToHistory = (searchTerm) => {
     if (!searchTerm.trim()) return;
 
@@ -46,14 +52,19 @@ export default function Home() {
       id: Date.now(),
       query: searchTerm,
       timestamp: new Date().toLocaleString(),
-      date: new Date().toISOString().split('T')[0] // for grouping by date
+      date: new Date().toISOString().split('T')[0]
     };
 
+    // Add to browsing history
     setBrowsingHistory(prev => {
-      // Remove duplicate if exists
       const filtered = prev.filter(item => item.query.toLowerCase() !== searchTerm.toLowerCase());
-      // Add new item at the beginning and keep only last 20 items
       return [historyItem, ...filtered].slice(0, 20);
+    });
+
+    // Add to recent searches (limited to last 5 searches)
+    setRecentSearches(prev => {
+      const filtered = prev.filter(item => item.query.toLowerCase() !== searchTerm.toLowerCase());
+      return [historyItem, ...filtered].slice(0, 5);
     });
   };
 
@@ -69,9 +80,16 @@ export default function Home() {
     setShowHistory(false);
   };
 
+  // Clear recent searches
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    setShowRecentSearches(false);
+  };
+
   // Delete specific history item
   const deleteHistoryItem = (id) => {
     setBrowsingHistory(prev => prev.filter(item => item.id !== id));
+    setRecentSearches(prev => prev.filter(item => item.id !== id));
   };
 
   // Group history by date
@@ -97,6 +115,29 @@ export default function Home() {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  // Fetch book details
+  const fetchBookDetails = async (bookId) => {
+    setBookDetailsLoading(true);
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/books/v1/volumes/${bookId}`
+      );
+      const data = await response.json();
+      setSelectedBook(data);
+      setShowBookDetails(true);
+    } catch (error) {
+      console.error('Failed to fetch book details:', error);
+    } finally {
+      setBookDetailsLoading(false);
+    }
+  };
+
+  // Close book details modal
+  const closeBookDetails = () => {
+    setShowBookDetails(false);
+    setSelectedBook(null);
   };
 
   // Mock data for featured books carousel
@@ -293,7 +334,7 @@ export default function Home() {
     if (e) e.preventDefault();
     if (!query.trim()) return;
 
-    // Add to browsing history
+    // Add to browsing history and recent searches
     addToHistory(query);
 
     setLoading(true);
@@ -315,10 +356,25 @@ export default function Home() {
   const handleHistoryClick = (historyQuery) => {
     setQuery(historyQuery);
     setShowHistory(false);
-    // Trigger search with the history item
+    setShowRecentSearches(false);
     setTimeout(() => {
       handleSearch();
     }, 100);
+  };
+
+  // Handle recent search click
+  const handleRecentSearchClick = (searchQuery) => {
+    setQuery(searchQuery);
+    setShowRecentSearches(false);
+    setTimeout(() => {
+      handleSearch();
+    }, 100);
+  };
+
+  // Show homepage content
+  const showHomepage = () => {
+    setSearchResults([]);
+    setQuery("");
   };
 
   const nextSlide = () => {
@@ -343,15 +399,172 @@ export default function Home() {
     );
   };
 
+  // Book Details Modal Component
+  const BookDetailsModal = ({ book, onClose, loading }) => {
+    if (loading) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="text-gray-600 mt-4">Loading book details...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!book) return null;
+
+    const volumeInfo = book.volumeInfo;
+    const saleInfo = book.saleInfo;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center p-6 border-b">
+            <h2 className="text-2xl font-bold text-gray-800">Book Details</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Book Cover */}
+              <div className="flex-shrink-0">
+                <img
+                  src={volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail || '/book-placeholder.png'}
+                  alt={volumeInfo.title}
+                  className="w-48 h-64 object-cover rounded-lg shadow-lg mx-auto"
+                />
+              </div>
+
+              {/* Book Information */}
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">{volumeInfo.title}</h1>
+                <p className="text-xl text-gray-600 mb-4">
+                  by {volumeInfo.authors?.join(', ') || 'Unknown Author'}
+                </p>
+
+                {/* Rating */}
+                {volumeInfo.averageRating && (
+                  <div className="flex items-center mb-4">
+                    <StarRating rating={volumeInfo.averageRating} />
+                    <span className="ml-2 text-gray-600">
+                      ({volumeInfo.ratingsCount || 0} ratings)
+                    </span>
+                  </div>
+                )}
+
+                {/* Basic Info Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {volumeInfo.publishedDate && (
+                    <div className="flex items-center text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>Published: {new Date(volumeInfo.publishedDate).getFullYear()}</span>
+                    </div>
+                  )}
+                  
+                  {volumeInfo.pageCount && (
+                    <div className="flex items-center text-gray-600">
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      <span>{volumeInfo.pageCount} pages</span>
+                    </div>
+                  )}
+                  
+                  {volumeInfo.categories && (
+                    <div className="flex items-center text-gray-600">
+                      <Bookmark className="w-4 h-4 mr-2" />
+                      <span>Categories: {volumeInfo.categories.join(', ')}</span>
+                    </div>
+                  )}
+                  
+                  {volumeInfo.language && (
+                    <div className="flex items-center text-gray-600">
+                      <Globe className="w-4 h-4 mr-2" />
+                      <span>Language: {volumeInfo.language.toUpperCase()}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description */}
+                {volumeInfo.description && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-2">Description</h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      {volumeInfo.description.replace(/<[^>]*>/g, '')}
+                    </p>
+                  </div>
+                )}
+
+                {/* Additional Information */}
+                <div className="space-y-3">
+                  {volumeInfo.publisher && (
+                    <div>
+                      <span className="font-semibold">Publisher: </span>
+                      <span className="text-gray-600">{volumeInfo.publisher}</span>
+                    </div>
+                  )}
+                  
+                  {volumeInfo.industryIdentifiers && (
+                    <div>
+                      <span className="font-semibold">ISBN: </span>
+                      <span className="text-gray-600">
+                        {volumeInfo.industryIdentifiers.map(id => `${id.type}: ${id.identifier}`).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Buy Links */}
+                {saleInfo?.buyLink && (
+                  <div className="mt-6">
+                    <a
+                      href={saleInfo.buyLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors inline-block"
+                    >
+                      Buy Now
+                    </a>
+                  </div>
+                )}
+
+                {/* Preview Link */}
+                {volumeInfo.previewLink && (
+                  <div className="mt-4">
+                    <a
+                      href={volumeInfo.previewLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Preview this book
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center h-auto md:h-16 py-2 md:py-0">
             {/* Logo */}
             <div className="flex items-center space-x-2 cursor-pointer mb-2 md:mb-0">
-              {/* Animated Icon & Logo - Link to homepage */}
               <Link href="./" className="flex items-center space-x-2 cursor-pointer">
                 <motion.div
                   initial={{ rotate: -20, opacity: 0, scale: 0.8 }}
@@ -365,7 +578,7 @@ export default function Home() {
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  whileHover={{ scale: 1.1, color: "#1d4ed8" }} // hover animation
+                  whileHover={{ scale: 1.1, color: "#1d4ed8" }}
                   className="text-2xl font-extrabold text-blue-600"
                 >
                   Lit
@@ -374,19 +587,32 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Search Bar with History */}
+            {/* Search Bar with History and Recent Searches */}
             <div className="w-full md:flex-1 max-w-lg mx-0 md:mx-8 mb-2 md:mb-0 relative">
               <div className="relative">
-                {/* History Button */}
-                <History
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 cursor-pointer hover:text-gray-600"
-                  onClick={() => {
-                    setShowHistory(!showHistory);
-                    setShowNotifications(false);
-                    setShowProfile(false);
-                    setShowMenu(false);
-                  }}
-                />
+                {/* History and Recent Buttons */}
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex space-x-1">
+                  <History
+                    className="text-gray-400 w-4 h-4 cursor-pointer hover:text-gray-600"
+                    onClick={() => {
+                      setShowHistory(!showHistory);
+                      setShowRecentSearches(false);
+                      setShowNotifications(false);
+                      setShowProfile(false);
+                      setShowMenu(false);
+                    }}
+                  />
+                  <RotateCcw
+                    className="text-gray-400 w-4 h-4 cursor-pointer hover:text-gray-600"
+                    onClick={() => {
+                      setShowRecentSearches(!showRecentSearches);
+                      setShowHistory(false);
+                      setShowNotifications(false);
+                      setShowProfile(false);
+                      setShowMenu(false);
+                    }}
+                  />
+                </div>
 
                 {/* Search Input */}
                 <input
@@ -395,7 +621,7 @@ export default function Home() {
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
                   placeholder="Search Book..."
-                  className="w-full pl-10 pr-20 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-12 pr-20 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
 
                 {/* Search and Cancel Icons */}
@@ -411,6 +637,55 @@ export default function Home() {
                     onClick={handleSearch}
                   />
                 </div>
+
+                {/* Recent Searches Dropdown */}
+                {showRecentSearches && recentSearches.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto z-20">
+                    <div className="p-3 border-b flex justify-between items-center">
+                      <span className="font-semibold text-gray-700">Recent Searches</span>
+                      <button
+                        onClick={clearRecentSearches}
+                        className="text-red-500 text-sm hover:text-red-700"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                    {recentSearches.map((item) => (
+                      <div
+                        key={item.id}
+                        className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex justify-between items-center group"
+                      >
+                        <div
+                          onClick={() => handleRecentSearchClick(item.query)}
+                          className="flex-1 flex items-center space-x-3"
+                        >
+                          <RotateCcw className="w-4 h-4 text-gray-400" />
+                          <div>
+                            <div className="text-sm text-gray-800">{item.query}</div>
+                            <div className="text-xs text-gray-500">{new Date(item.timestamp).toLocaleTimeString()}</div>
+                          </div>
+                        </div>
+                        <X
+                          className="w-4 h-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteHistoryItem(item.id);
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Empty Recent Searches Message */}
+                {showRecentSearches && recentSearches.length === 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg p-4 z-20">
+                    <div className="text-center text-gray-500 text-sm">
+                      <RotateCcw className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      No recent searches
+                    </div>
+                  </div>
+                )}
 
                 {/* History Dropdown */}
                 {showHistory && browsingHistory.length > 0 && (
@@ -467,12 +742,23 @@ export default function Home() {
 
             {/* Header Actions */}
             <div className="flex items-center space-x-2 md:space-x-4">
+              {/* Favorites */}
+              <div className="relative cursor-pointer" onClick={() => {
+                setShowProfile(false);
+                setShowMenu(false);
+                setShowHistory(false);
+                setShowRecentSearches(false);
+              }}>
+                <Heart className="w-7 h-8 text-red-500 fill-current hover:text-red-400 transition-colors md:w-8" />
+              </div>
+
               {/* Notification Bell */}
               <div className="relative cursor-pointer" onClick={() => {
                 setShowNotifications(!showNotifications);
                 setShowProfile(false);
                 setShowMenu(false);
                 setShowHistory(false);
+                setShowRecentSearches(false);
               }}>
                 <Bell className="w-6 h-6 text-gray-600 hover:text-gray-900 transition-colors" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
@@ -482,7 +768,7 @@ export default function Home() {
                     <ul className="space-y-2 text-sm text-gray-600">
                       <li className="hover:bg-gray-100 p-2 rounded cursor-pointer">New book added: <b>Atomic Habits</b></li>
                       <li className="hover:bg-gray-100 p-2 rounded cursor-pointer">Your review got 5 likes</li>
-                      <li className="hover:bg-gray-100 p-2 rounded cursor-pointer">Friend request from Sarah</li>
+                      <li className="hover:bg-gray-100 p-2 rounded cursor-pointer">Friend request from Sabee'a</li>
                     </ul>
                   </div>
                 )}
@@ -495,6 +781,7 @@ export default function Home() {
                   setShowNotifications(false);
                   setShowMenu(false);
                   setShowHistory(false);
+                  setShowRecentSearches(false);
                 }}>
                   <User className="w-5 h-5 text-white" />
                 </div>
@@ -516,6 +803,7 @@ export default function Home() {
                   setShowNotifications(false);
                   setShowProfile(false);
                   setShowHistory(false);
+                  setShowRecentSearches(false);
                 }} />
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg p-2 z-10">
@@ -531,6 +819,19 @@ export default function Home() {
       </header>
 
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        {/* Back to Home Button (shown only when search results are displayed) */}
+        {searchResults.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={showHomepage}
+              className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </button>
+          </div>
+        )}
+
         {/* Search Results */}
         {searchResults.length > 0 && (
           <div className="mb-8">
@@ -561,7 +862,10 @@ export default function Home() {
                     <p className="text-xs text-gray-600 mb-2">
                       {book.volumeInfo.authors?.join(", ")}
                     </p>
-                    <button className="text-blue-600 text-xs hover:underline">
+                    <button 
+                      className="text-blue-600 text-xs hover:underline"
+                      onClick={() => fetchBookDetails(book.id)}
+                    >
                       More Info →
                     </button>
                   </div>
@@ -578,179 +882,193 @@ export default function Home() {
           </div>
         )}
 
-        {/* Featured Books Carousel */}
-        <div className="relative mb-6 sm:mb-8 overflow-hidden rounded-2xl">
-          <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-            {featuredBooks.map((book, index) => (
-              <div
-                key={book.id}
-                className={`w-full flex-shrink-0 ${book.color} p-4 sm:p-8 text-white relative`}
-              >
-                <div className="flex flex-col sm:flex-row items-center justify-between">
-                  <div className="flex-1 mb-4 sm:mb-0">
-                    <h2 className="text-3xl font-bold mb-2">{book.title}</h2>
-                    <p className="text-lg opacity-90 mb-2">{book.author}</p>
-                    <div className="flex items-center mb-4">
-                      <StarRating rating={book.rating} />
-                      <span className="ml-2 text-sm opacity-80">{book.reviews}</span>
-                    </div>
-                    <p className="text-sm opacity-90 mb-6 max-w-md">{book.description}</p>
-                    <button className="bg-white text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                      See The Book
-                    </button>
-                  </div>
-                  <div className="ml-8">
-                    <img
-                      src={book.image}
-                      alt={book.title}
-                      className="w-32 h-44 sm:w-48 sm:h-64 object-cover rounded-lg shadow-2xl mx-auto sm:mx-0"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Carousel Controls */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 backdrop-blur-sm transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6 text-white" />
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 backdrop-blur-sm transition-colors"
-          >
-            <ChevronRight className="w-6 h-6 text-white" />
-          </button>
-
-          {/* Carousel Indicators */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {featuredBooks.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${currentSlide === index ? 'bg-white' : 'bg-white/50'
-                  }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
-          {/* Left Sidebar */}
-          <div className="lg:col-span-1 space-y-4 sm:space-y-8 mb-4 lg:mb-0">
-            {/* Author of the Week */}
-            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Author of the week</h3>
-              <div className="space-y-3">
-                {authorOfWeek.map((author, index) => (
-                  <div key={index} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
-                    <img
-                      src={author.avatar}
-                      alt={author.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <span className="text-sm text-gray-700 hover:text-gray-900">{author.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Books of the Year */}
-            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Books of the year</h3>
-              <div className="space-y-4">
-                {booksOfYear.map((book, index) => (
-                  <div key={book.id} className="flex space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
-                    <img
-                      src={book.image}
-                      alt={book.title}
-                      className="w-12 h-16 object-cover rounded"
-                    />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-gray-800 leading-tight hover:text-blue-600 transition-colors">{book.title}</h4>
-                      <p className="text-xs text-gray-600">{book.author}</p>
-                      <div className="flex items-center mt-1">
-                        <StarRating rating={book.rating} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Popular by Genre */}
-            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-800">Popular by Genre</h3>
-              </div>
-
-              {/* Genre Tabs */}
-              <div className="flex flex-wrap space-x-2 sm:space-x-6 mb-4 sm:mb-6 border-b">
-                {genres.map((genre) => (
-                  <button
-                    key={genre}
-                    onClick={() => setActiveGenre(genre)}
-                    className={`pb-2 text-xs sm:text-sm font-medium transition-colors ${activeGenre === genre
-                      ? "text-blue-600 border-b-2 border-blue-600"
-                      : "text-gray-600 hover:text-gray-900"
-                      }`}
+        {/* Homepage Content (only shown when no search results) */}
+        {!loading && searchResults.length === 0 && (
+          <>
+            {/* Featured Books Carousel */}
+            <div className="relative mb-6 sm:mb-8 overflow-hidden rounded-2xl">
+              <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+                {featuredBooks.map((book, index) => (
+                  <div
+                    key={book.id}
+                    className={`w-full flex-shrink-0 ${book.color} p-4 sm:p-8 text-white relative`}
                   >
-                    {genre}
-                  </button>
-                ))}
-              </div>
-
-              {/* Popular Books Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                {popularBooks.map((book) => (
-                  <div key={book.id} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 hover:bg-gray-50 p-2 sm:p-4 rounded-lg transition-colors">
-                    <img
-                      src={book.image}
-                      alt={book.title}
-                      className="w-20 h-28 sm:w-24 sm:h-32 object-cover rounded-lg shadow-sm mx-auto sm:mx-0"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-800 mb-1 hover:text-blue-600 cursor-pointer transition-colors">{book.title}</h4>
-                          <p className="text-sm text-gray-600 mb-2">{book.author}</p>
+                    <div className="flex flex-col sm:flex-row items-center justify-between">
+                      <div className="flex-1 mb-4 sm:mb-0">
+                        <h2 className="text-3xl font-bold mb-2">{book.title}</h2>
+                        <p className="text-lg opacity-90 mb-2">{book.author}</p>
+                        <div className="flex items-center mb-4">
+                          <StarRating rating={book.rating} />
+                          <span className="ml-2 text-sm opacity-80">{book.reviews}</span>
                         </div>
-                        <MoreHorizontal className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+                        <p className="text-sm opacity-90 mb-6 max-w-md">{book.description}</p>
+                        <button className="bg-white text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                          See The Book
+                        </button>
                       </div>
-                      <div className="flex items-center mb-2">
-                        <StarRating rating={book.rating} />
-                        <span className="ml-2 text-xs text-gray-500">{book.reviews}</span>
-                      </div>
-                      <p className="text-xs text-gray-500 mb-3">
-                        {book.description}
-                      </p>
-                      <div className="flex items-center space-x-2">
-                        <div className="flex -space-x-2">
-                          <div className="w-6 h-6 bg-blue-400 rounded-full border-2 border-white"></div>
-                          <div className="w-6 h-6 bg-green-400 rounded-full border-2 border-white"></div>
-                        </div>
-                        <span className="text-xs text-gray-500">{book.likes}</span>
+                      <div className="ml-8">
+                        <img
+                          src={book.image}
+                          alt={book.title}
+                          className="w-32 h-44 sm:w-48 sm:h-64 object-cover rounded-lg shadow-2xl mx-auto sm:mx-0"
+                        />
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {popularBooks.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No books found for "{activeGenre}" genre.</p>
-                </div>
-              )}
+              {/* Carousel Controls */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 backdrop-blur-sm transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 backdrop-blur-sm transition-colors"
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </button>
+
+              {/* Carousel Indicators */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                {featuredBooks.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-colors ${currentSlide === index ? 'bg-white' : 'bg-white/50'
+                      }`}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
+              {/* Left Sidebar */}
+              <div className="lg:col-span-1 space-y-4 sm:space-y-8 mb-4 lg:mb-0">
+                {/* Author of the Week */}
+                <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800">Author of the week</h3>
+                  <div className="space-y-3">
+                    {authorOfWeek.map((author, index) => (
+                      <div key={index} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                        <img
+                          src={author.avatar}
+                          alt={author.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <span className="text-sm text-gray-700 hover:text-gray-900">{author.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Books of the Year */}
+                <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800">Books of the year</h3>
+                  <div className="space-y-4">
+                    {booksOfYear.map((book, index) => (
+                      <div key={book.id} className="flex space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                        <img
+                          src={book.image}
+                          alt={book.title}
+                          className="w-12 h-16 object-cover rounded"
+                        />
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-800 leading-tight hover:text-blue-600 transition-colors">{book.title}</h4>
+                          <p className="text-xs text-gray-600">{book.author}</p>
+                          <div className="flex items-center mt-1">
+                            <StarRating rating={book.rating} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <div className="lg:col-span-3">
+                {/* Popular by Genre */}
+                <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-semibold text-gray-800">Popular by Genre</h3>
+                  </div>
+
+                  {/* Genre Tabs */}
+                  <div className="flex flex-wrap space-x-2 sm:space-x-6 mb-4 sm:mb-6 border-b">
+                    {genres.map((genre) => (
+                      <button
+                        key={genre}
+                        onClick={() => setActiveGenre(genre)}
+                        className={`pb-2 text-xs sm:text-sm font-medium transition-colors ${activeGenre === genre
+                          ? "text-blue-600 border-b-2 border-blue-600"
+                          : "text-gray-600 hover:text-gray-900"
+                          }`}
+                      >
+                        {genre}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Popular Books Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    {popularBooks.map((book) => (
+                      <div key={book.id} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 hover:bg-gray-50 p-2 sm:p-4 rounded-lg transition-colors">
+                        <img
+                          src={book.image}
+                          alt={book.title}
+                          className="w-20 h-28 sm:w-24 sm:h-32 object-cover rounded-lg shadow-sm mx-auto sm:mx-0"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-800 mb-1 hover:text-blue-600 cursor-pointer transition-colors">{book.title}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{book.author}</p>
+                            </div>
+                            <MoreHorizontal className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+                          </div>
+                          <div className="flex items-center mb-2">
+                            <StarRating rating={book.rating} />
+                            <span className="ml-2 text-xs text-gray-500">{book.reviews}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-3">
+                            {book.description}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <div className="flex -space-x-2">
+                              <div className="w-6 h-6 bg-blue-400 rounded-full border-2 border-white"></div>
+                              <div className="w-6 h-6 bg-gray-100 rounded-full border-2 border-white"></div>
+                            </div>
+                            <span className="text-xs text-gray-500">{book.likes}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {popularBooks.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No books found for "{activeGenre}" genre.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
+
+      {/* Book Details Modal */}
+      {showBookDetails && (
+        <BookDetailsModal 
+          book={selectedBook} 
+          onClose={closeBookDetails} 
+          loading={bookDetailsLoading} 
+        />
+      )}
     </div>
   );
 }

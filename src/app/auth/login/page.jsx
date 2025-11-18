@@ -48,7 +48,7 @@ export default function Login() {
         setError("Incorrect password");
       }
       setIsLoading(false);
-    }, 1500);
+    }, 250);
   };
 
   return (

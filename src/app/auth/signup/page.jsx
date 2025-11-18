@@ -1,6 +1,7 @@
 "use client";
 import { User, Lock, Mail, UserPlus } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,6 +14,11 @@ export default function SignUp() {
   const [error, setError] = useState("");
 
 
+ const signup = () => {
+    router.push("../");
+  };
+
+
 
   const handleConfirmPasswordChange = (value) => {
     setConfirmPassword(value);
@@ -23,6 +29,7 @@ export default function SignUp() {
     }
   };
 
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,8 +91,8 @@ export default function SignUp() {
           <form className="space-y-6" onSubmit={handleSubmit} autoComplete="off">
             <div className={`relative transform transition-all duration-300 ${focusedField === 'fullname' ? 'scale-105' : ''}`}>
               <div className={`flex items-center bg-gray-50 rounded-xl px-4 py-4 border-2 transition-all duration-300 relative z-10 ${focusedField === 'fullname'
-                  ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/20'
-                  : 'border-transparent hover:border-gray-300'
+                ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/20'
+                : 'border-transparent hover:border-gray-300'
                 }`}>
                 <User className={`mr-3 transition-all duration-300 ${focusedField === 'fullname' ? 'text-blue-500 scale-110' : 'text-gray-400'
                   }`} size={18} />
@@ -105,8 +112,8 @@ export default function SignUp() {
 
             <div className={`relative transform transition-all duration-300 ${focusedField === 'email' ? 'scale-105' : ''}`}>
               <div className={`flex items-center bg-gray-50 rounded-xl px-4 py-4 border-2 transition-all duration-300 relative z-10 ${focusedField === 'email'
-                  ? 'border-green-500 bg-green-50 shadow-lg shadow-green-500/20'
-                  : 'border-transparent hover:border-gray-300'
+                ? 'border-green-500 bg-green-50 shadow-lg shadow-green-500/20'
+                : 'border-transparent hover:border-gray-300'
                 }`}>
                 <Mail className={`mr-3 transition-all duration-300 ${focusedField === 'email' ? 'text-green-500 scale-110' : 'text-gray-400'
                   }`} size={18} />
@@ -126,8 +133,8 @@ export default function SignUp() {
 
             <div className={`relative transform transition-all duration-300 ${focusedField === 'username' ? 'scale-105' : ''}`}>
               <div className={`flex items-center bg-gray-50 rounded-xl px-4 py-4 border-2 transition-all duration-300 relative z-10 ${focusedField === 'username'
-                  ? 'border-pink-500 bg-pink-50 shadow-lg shadow-pink-500/20'
-                  : 'border-transparent hover:border-gray-300'
+                ? 'border-pink-500 bg-pink-50 shadow-lg shadow-pink-500/20'
+                : 'border-transparent hover:border-gray-300'
                 }`}>
                 <UserPlus className={`mr-3 transition-all duration-300 ${focusedField === 'username' ? 'text-pink-500 scale-110' : 'text-gray-400'
                   }`} size={18} />
@@ -145,21 +152,21 @@ export default function SignUp() {
               </div>
             </div>
 
-          
+
             <div
               className={`relative transform transition-all duration-300 ${focusedField === "password" ? "scale-105" : ""
                 }`}
             >
               <div
                 className={`flex items-center bg-gray-50 rounded-xl px-4 py-4 border-2 transition-all duration-300 relative z-10 ${focusedField === "password"
-                    ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-500/20"
-                    : "border-transparent hover:border-gray-300"
+                  ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-500/20"
+                  : "border-transparent hover:border-gray-300"
                   }`}
               >
                 <Lock
                   className={`mr-3 transition-all duration-300 ${focusedField === "password"
-                      ? "text-purple-500 scale-110"
-                      : "text-gray-400"
+                    ? "text-purple-500 scale-110"
+                    : "text-gray-400"
                     }`}
                   size={18}
                 />
@@ -177,21 +184,21 @@ export default function SignUp() {
               </div>
             </div>
 
-       
+
             <div
               className={`relative transform transition-all duration-300 ${focusedField === "confirmPassword" ? "scale-105" : ""
                 }`}
             >
               <div
                 className={`flex items-center bg-gray-50 rounded-xl px-4 py-4 border-2 transition-all duration-300 relative z-10 ${focusedField === "confirmPassword"
-                    ? "border-red-500 bg-red-50 shadow-lg shadow-red-500/20"
-                    : "border-transparent hover:border-gray-300"
+                  ? "border-red-500 bg-red-50 shadow-lg shadow-red-500/20"
+                  : "border-transparent hover:border-gray-300"
                   }`}
               >
                 <Lock
                   className={`mr-3 transition-all duration-300 ${focusedField === "confirmPassword"
-                      ? "text-red-500 scale-110"
-                      : "text-gray-400"
+                    ? "text-red-500 scale-110"
+                    : "text-gray-400"
                     }`}
                   size={18}
                 />
@@ -212,24 +219,40 @@ export default function SignUp() {
               )}
             </div>
 
+
+
+
+
+
+
+
+
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105"
+              // disabled={isLoading}
+              className="w-full bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
-              <span className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-                SIGNUP
-              </span>
-              {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
+              {/* {!isLoading ? "SIGNUP" : (
+
+ 
+                <div className="flex justify-center">
                   <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              )} */}
+ <Link className='text-white text-xl py-4' onClick={signup}
+                      href="../"
+                    >SIGNUP</Link>
             </button>
+            
+
+
+
+
+
+
           </form>
-        </div> 
-      </div> 
+        </div>
+      </div>
 
       <style jsx>{`
         @keyframes fadeInUp {
