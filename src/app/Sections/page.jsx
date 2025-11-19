@@ -62,10 +62,10 @@ export default function Home() {
     });
 
     // Add to recent searches (limited to last 5 searches)
-    setRecentSearches(prev => {
-      const filtered = prev.filter(item => item.query.toLowerCase() !== searchTerm.toLowerCase());
-      return [historyItem, ...filtered].slice(0, 5);
-    });
+    // setRecentSearches(prev => {
+    //   const filtered = prev.filter(item => item.query.toLowerCase() !== searchTerm.toLowerCase());
+    //   return [historyItem, ...filtered].slice(0, 5);
+    // });
   };
 
   // Clear search and results
@@ -593,7 +593,7 @@ export default function Home() {
                 {/* History and Recent Buttons */}
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex space-x-1">
                   <History
-                    className="text-gray-400 w-4 h-4 cursor-pointer hover:text-gray-600"
+                    className="text-gray-400 w-8 h-5 cursor-pointer hover:text-gray-600"
                     onClick={() => {
                       setShowHistory(!showHistory);
                       setShowRecentSearches(false);
@@ -602,8 +602,8 @@ export default function Home() {
                       setShowMenu(false);
                     }}
                   />
-                  <RotateCcw
-                    className="text-gray-400 w-4 h-4 cursor-pointer hover:text-gray-600"
+                  {/* <RotateCcw
+                    className="text-gray-400 w-8 h-4 cursor-pointer hover:text-gray-600"
                     onClick={() => {
                       setShowRecentSearches(!showRecentSearches);
                       setShowHistory(false);
@@ -611,7 +611,7 @@ export default function Home() {
                       setShowProfile(false);
                       setShowMenu(false);
                     }}
-                  />
+                  /> */}
                 </div>
 
                 {/* Search Input */}
@@ -640,31 +640,31 @@ export default function Home() {
 
                 {/* Recent Searches Dropdown */}
                 {showRecentSearches && recentSearches.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto z-20">
-                    <div className="p-3 border-b flex justify-between items-center">
-                      <span className="font-semibold text-gray-700">Recent Searches</span>
-                      <button
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-red-400 border rounded-lg shadow-lg max-h-96 overflow-y-auto z-20">
+                    {/* <div className="p-3 border-b flex justify-between items-center"> */}
+                      {/* <span className="font-semibold text-gray-700">Recent Searches</span> */}
+                      {/* <button
                         onClick={clearRecentSearches}
                         className="text-red-500 text-sm hover:text-red-700"
                       >
                         Clear All
-                      </button>
-                    </div>
+                      </button> */}
+                    {/* </div> */}
                     {recentSearches.map((item) => (
                       <div
                         key={item.id}
                         className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex justify-between items-center group"
                       >
-                        <div
+                        {/* <div
                           onClick={() => handleRecentSearchClick(item.query)}
                           className="flex-1 flex items-center space-x-3"
                         >
-                          <RotateCcw className="w-4 h-4 text-gray-400" />
+                          <RotateCcw className="w-4 h-4 text-red-600" />
                           <div>
                             <div className="text-sm text-gray-800">{item.query}</div>
                             <div className="text-xs text-gray-500">{new Date(item.timestamp).toLocaleTimeString()}</div>
                           </div>
-                        </div>
+                        </div> */}
                         <X
                           className="w-4 h-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                           onClick={(e) => {
@@ -678,14 +678,14 @@ export default function Home() {
                 )}
 
                 {/* Empty Recent Searches Message */}
-                {showRecentSearches && recentSearches.length === 0 && (
+                {/* {showRecentSearches && recentSearches.length === 0 && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg p-4 z-20">
                     <div className="text-center text-gray-500 text-sm">
-                      <RotateCcw className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      <RotateCcw className="w-8 h-8 mx-auto mb-2 text-red-600" />
                       No recent searches
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {/* History Dropdown */}
                 {showHistory && browsingHistory.length > 0 && (
