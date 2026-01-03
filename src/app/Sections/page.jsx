@@ -3,6 +3,9 @@ import Link from 'next/link'
 import { useState, useEffect } from "react";
 import { Search, Clock, Star, TrendingUp, ChevronLeft, ChevronRight, Menu, User, Bell, MoreHorizontal, X, History, Heart, BookOpen, Calendar, User as UserIcon, Globe, Bookmark, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
+// import FavoriteButton from '@/components/FavoriteButton';
+
+// In your book card component:
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -777,6 +780,9 @@ export default function Home() {
                   </div>
                 )}
               </div>
+
+{/*  */}
+
 
               {/* User Profile */}
               <div className="relative">
