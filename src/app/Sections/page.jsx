@@ -602,16 +602,7 @@ export default function Home() {
                       setShowMenu(false);
                     }}
                   />
-                  {/* <RotateCcw
-                    className="text-gray-400 w-8 h-4 cursor-pointer hover:text-gray-600"
-                    onClick={() => {
-                      setShowRecentSearches(!showRecentSearches);
-                      setShowHistory(false);
-                      setShowNotifications(false);
-                      setShowProfile(false);
-                      setShowMenu(false);
-                    }}
-                  /> */}
+                
                 </div>
 
                 {/* Search Input */}
@@ -749,7 +740,20 @@ export default function Home() {
                 setShowHistory(false);
                 setShowRecentSearches(false);
               }}>
+
+
+           <Link
+                            href="/pages/favorite"
+                            className="group relative overflow-hidden"
+                        >
                 <Heart className="w-7 h-8 text-red-500 fill-current hover:text-red-400 transition-colors md:w-8" />
+
+
+                        </Link>
+
+
+
+
               </div>
 
               {/* Notification Bell */}

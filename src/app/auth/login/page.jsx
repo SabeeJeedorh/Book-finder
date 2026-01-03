@@ -147,7 +147,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isLoading}
+              // disabled={isLoading}
               className="w-full bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
               {!isLoading ? "LOGIN" : (

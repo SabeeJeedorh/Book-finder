@@ -5,7 +5,6 @@ function Homepage() {
     const [isLoaded, setIsLoaded] = useState(false)
     const [showText, setShowText] = useState(false)
     const [showButton, setShowButton] = useState(false)
-
     useEffect(() => {
         setTimeout(() => setIsLoaded(true), 100)
         setTimeout(() => setShowText(true), 800)
@@ -50,7 +49,7 @@ function Homepage() {
 
 
                 <div className="text-center">
-         
+
 
                     <div className={`overflow-hidden transition-all duration-1000 ${showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                         <h2 className='text-3xl text-pink-600 font-bold font-serif sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight tracking-wide transform transition-all duration-500 hover:scale-105 hover:text-pink-700'>
@@ -65,7 +64,7 @@ function Homepage() {
                         </h2>
                     </div>
 
-                <div className={`mt-8 transition-all duration-1000 delay-700 ${showText ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
+                    <div className={`mt-8 transition-all duration-1000 delay-700 ${showText ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
                         <div className="w-24 h-1 bg-pink-600 mx-auto animate-pulse"></div>
                     </div>
 
