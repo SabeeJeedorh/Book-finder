@@ -1,6 +1,6 @@
 Litseek (Book Finder App), is a modern web application built with Next.js, React, Tailwind CSS, and Framer Motion. It’s designed to help users search, browse, and explore books, while also offering a community-like experience with notifications, user profile interactions, and genre-based recommendations.
 
-🔑 Key Features (from your code)
+Features
 1. Book Search
 
 Uses Google Books API (https://www.googleapis.com/books/v1/volumes?q=...).
@@ -91,7 +91,7 @@ Google Books API → For live book search results.
 
 Mock Data → For featured books, authors, and popular books (until you connect a backend).
 
-🚀 What’s Great About Your App
+ What’s Great About Your App
 
 ✅ Clear separation of concerns (search, featured, authors, genres).
 ✅ Good use of mock data for design prototyping.
@@ -100,7 +100,7 @@ Mock Data → For featured books, authors, and popular books (until you connect 
 ✅ Extra features beyond just searching books (profile, notifications, carousel, genres).
 ✅ Scalable structure – easy to replace mock data with a backend later.
 
-🔮 Next Steps / Improvements
+Next Steps
 
 Authentication – Add login/logout with Firebase, NextAuth, or Supabase.
 
