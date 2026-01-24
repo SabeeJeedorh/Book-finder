@@ -1026,7 +1026,7 @@ export default function Home() {
                   {/* Popular Books Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {popularBooks.map((book) => (
-                      <div key={book.id} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 hover:bg-gray-50 p-2 sm:p-4 rounded-lg transition-colors">
+                      <div key={book.id} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 gap-4 hover:bg-gray-50 p-2 sm:p-4 rounded-lg transition-colors">
                         <img
                           src={book.image}
                           alt={book.title}
