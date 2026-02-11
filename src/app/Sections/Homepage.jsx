@@ -31,7 +31,7 @@ function Homepage() {
             ></div>
 
             {/* Floating particles */}
-            <div className="absolute inset-0 pointer-events-none">
+            {/* <div className="absolute inset-0 pointer-events-none">
                 {[...Array(8)].map((_, i) => (
                     <div
                         key={i}
@@ -44,7 +44,7 @@ function Homepage() {
                         }}
                     ></div>
                 ))}
-            </div>
+            </div> */}
 
             {/* Main content with staggered animations */}
             <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
