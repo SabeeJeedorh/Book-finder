@@ -235,7 +235,7 @@ export default function FavoritesPage() {
                     <span className="text-xs sm:text-sm">{showDeleteConfirm ? 'Confirm?' : 'Clear All'}</span>
                   </button>
                   
-                  <Link href="/sections/Homepage" className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-500 text-white px-5 py-2.5 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-200 font-medium">
+                  <Link href="/Sections" className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-500 text-white px-5 py-2.5 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-200 font-medium">
                     <Home className="w-4 h-4" />
                     <span className="text-sm">Home</span>
                   </Link>
@@ -271,16 +271,26 @@ export default function FavoritesPage() {
             <p className="text-sm sm:text-base lg:text-lg text-red-600/70 mb-6 sm:mb-8 max-w-md mx-auto px-4 leading-relaxed">
               Start building your personal library by adding books you love and want to read
             </p>
-            <Link href="../Sections" className="inline-flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-red-600 to-red-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 text-sm sm:text-base">
+            {/* <Link href="../Sections" className="inline-flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-red-600 to-red-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 text-sm sm:text-base">
               <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Discover Books</span>
-            </Link>
+            </Link> */}
+
+
+<Link 
+  href="../Sections?search=bestsellers"
+  className="inline-flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-red-600 to-red-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+>
+  <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+  <span>Discover Books</span>
+</Link>
+            
           </div>
         ) : (
           <div className="space-y-4 sm:space-y-8">
             {/* Stats Cards - Red theme */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-red-100 shadow-lg hover:shadow-xl transition-all hover:scale-105 hover:border-red-200">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-500 shadow-lg hover:shadow-xl transition-all hover:scale-105 hover:border-red-200">
                 <div className="flex items-center justify-between mb-1 sm:mb-2">
                   <div className="p-1.5 sm:p-2 bg-gradient-to-r from-red-600 to-red-500 rounded-lg sm:rounded-xl">
                     <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -530,7 +540,7 @@ export default function FavoritesPage() {
       {/* Floating Action Button - Red theme */}
       {favorites.length > 0 && (
         <Link 
-          href="/sections/Homepage" 
+          href="/Sections" 
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-8 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 group"
         >
           <Home className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 group-hover:scale-110 transition-transform" />
