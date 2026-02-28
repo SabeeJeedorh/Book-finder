@@ -1,9 +1,11 @@
 "use client"
 import { useState, useEffect } from "react";
 import Link from 'next/link';
-import { Heart, ChevronLeft, X, BookOpen, Calendar, Trash2, Home, Search, Sparkles, BookmarkCheck, TrendingUp, Award, LayoutGrid, List, Clock, User, Tag, Star } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { Heart, ChevronLeft, X, BookOpen, Calendar, Trash2, Home, Search, Sparkles, BookmarkCheck, TrendingUp, Award, LayoutGrid, List, Clock, User, Tag, Star, HomeIcon, Plus } from "lucide-react";
 
 export default function FavoritesPage() {
+  const router = useRouter();
   const [favorites, setFavorites] = useState([]);
   const [filteredFavorites, setFilteredFavorites] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,6 +138,10 @@ export default function FavoritesPage() {
 
   const stats = calculateStats();
 
+  const handleAddBook = () => {
+    router.push('/Sections');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-red-50/80 to-white flex items-center justify-center p-4">
@@ -195,7 +201,7 @@ export default function FavoritesPage() {
                   <Heart className="w-5 h-5 text-red-600 fill-red-600" />
                 </div>
                 <h1 className="text-lg font-bold text-red-800">
-                  My Collection
+                  My Favorite Books
                 </h1>
               </div>
             </div>
@@ -206,20 +212,36 @@ export default function FavoritesPage() {
                 <div className="flex items-center space-x-4">
                   <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 rounded-2xl blur-xl opacity-30"></div>
-                    <div className="relative bg-gradient-to-r from-red-600 to-red-500 p-3 rounded-2xl">
-                      <Heart className="w-7 h-7 text-white fill-white" />
+                    <div className="relative">
                     </div>
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold text-red-800">
-                      My Collection
-                    </h1>
+                      My Favorite Books
+                    </h1> 
                     <p className="text-xs sm:text-sm text-red-600/70">
                       {favorites.length} {favorites.length === 1 ? 'book' : 'books'} saved
                     </p>
                   </div>
                 </div>
               </div>
+              
+              {/* Plus Icon Button - Navigates to /Sections */}
+              {/* <button
+                onClick={handleAddBook}
+                className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium transition-all duration-200 bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg hover:shadow-xl hover:scale-105 border border-red-400"
+              >
+                
+
+                <span className="text-xs sm:text-sm">Add Book
+                            <Plus className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 group-hover:scale-110 transition-transform" />
+
+                </span>
+              </button> */}
+              
+
+
+
               
               {favorites.length > 0 && (
                 <>
@@ -259,38 +281,29 @@ export default function FavoritesPage() {
             <div className="relative max-w-md mx-auto mb-6 sm:mb-8 px-4">
               <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-400 rounded-full blur-3xl opacity-20"></div>
               <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-8 sm:p-12 border border-red-100 shadow-xl">
-                <Heart className="w-16 h-16 sm:w-24 sm:h-24 text-red-200 mx-auto mb-4" />
-                <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
-                  <Sparkles className="w-5 h-5 sm:w-8 sm:h-8 text-red-400 animate-pulse" />
-                </div>
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-red-800 mb-3 sm:mb-4 px-4">
+                  Your Collection Awaits
+                </h2>
               </div>
             </div>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-red-800 mb-3 sm:mb-4 px-4">
-              Your Collection Awaits
-            </h2>
+            
             <p className="text-sm sm:text-base lg:text-lg text-red-600/70 mb-6 sm:mb-8 max-w-md mx-auto px-4 leading-relaxed">
               Start building your personal library by adding books you love and want to read
             </p>
-            {/* <Link href="../Sections" className="inline-flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-red-600 to-red-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 text-sm sm:text-base">
-              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+
+            <button
+              onClick={handleAddBook}
+              className="inline-flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-red-600 to-red-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+            >
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Discover Books</span>
-            </Link> */}
-
-
-<Link 
-  href="../Sections?search=bestsellers"
-  className="inline-flex items-center space-x-2 sm:space-x-3 bg-gradient-to-r from-red-600 to-red-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 text-sm sm:text-base"
->
-  <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-  <span>Discover Books</span>
-</Link>
-            
+            </button>
           </div>
         ) : (
           <div className="space-y-4 sm:space-y-8">
             {/* Stats Cards - Red theme */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-500 shadow-lg hover:shadow-xl transition-all hover:scale-105 hover:border-red-200">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-red-100 shadow-lg hover:shadow-xl transition-all hover:scale-105 hover:border-red-200">
                 <div className="flex items-center justify-between mb-1 sm:mb-2">
                   <div className="p-1.5 sm:p-2 bg-gradient-to-r from-red-600 to-red-500 rounded-lg sm:rounded-xl">
                     <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -468,7 +481,7 @@ export default function FavoritesPage() {
                         <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 fill-red-600 group-hover/btn:scale-110 transition-transform" />
                       </button>
                       
-                      {book.rating && (
+                      {book.rating > 0 && (
                         <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl shadow-lg backdrop-blur-sm flex items-center gap-1">
                           <Star className="w-3 h-3 fill-white" />
                           {book.rating}
@@ -497,7 +510,7 @@ export default function FavoritesPage() {
                           </div>
                         )}
                         
-                        {book.pageCount && (
+                        {book.pageCount > 0 && (
                           <div className="flex items-center">
                             <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-red-400" />
                             <span>{book.pageCount.toLocaleString()} pages</span>
@@ -538,14 +551,19 @@ export default function FavoritesPage() {
       </div>
 
       {/* Floating Action Button - Red theme */}
-      {favorites.length > 0 && (
+      {/* {/* {favorites.length > 0 && ( */}
         <Link 
           href="/Sections" 
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-8 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 group"
         >
-          <Home className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 group-hover:scale-110 transition-transform" />
-        </Link>
-      )}
+<h2 className="text-white">
+  <span>
+    <Plus></Plus>
+  </span>
+</h2>
+          {/* <plus className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 group-hover:scale-110 transition-transform text" /> */}
+        </Link> 
+
     </div>
   );
 }
