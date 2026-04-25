@@ -142,7 +142,6 @@ export default function SignUp() {
                   type="text"
                   name="username"
                   placeholder="Username"
-                  value={username}
                   className="bg-transparent flex-1 outline-none text-gray-700 placeholder-gray-400 relative z-10"
                   onFocus={() => setFocusedField('username')}
                   onBlur={() => setFocusedField(null)}
